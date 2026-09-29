@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OnlyFans Chat Scripts</title>
+  <style>
+    :root {
+      --bg: #0f0f13;
+      --card: #1a1a22;
+      --card-hover: #22222c;
+      --border: #2a2a35;
+      --text: #e8e8ed;
+      --muted: #9898a6;
+      --accent: #ff4d6d;
+      --accent-hover: #ff6b85;
+      --success: #2dd4a8;
+      --radius: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(15, 15, 19, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px;
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo span { color: var(--accent); }
+    .search-wrap {
+      flex: 1;
+      min-width: 200px;
+      max-width: 360px;
+      position: relative;
+    }
+    .search-wrap input {
+      width: 100%;
+      padding: 10px 14px 10px 40px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-wrap input:focus { border-color: var(--accent); }
+    .search-wrap input::placeholder { color: var(--muted); }
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 28px;
+    }
+    @media (max-width: 768px) {
+      .container { grid-template-columns: 1fr; }
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        position: sticky;
+        top: 80px;
+        background: var(--bg);
+        padding-bottom: 12px;
+        z-index: 50;
+      }
+      .nav-btn { flex: 0 0 auto; }
+    }
+    nav { display: flex; flex-direction: column; gap: 6px; }
+    .nav-btn {
+      text-align: left;
+      padding: 10px 14px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .nav-btn:hover { background: var(--card); color: var(--text); }
+    .nav-btn.active {
+      background: var(--card);
+      border-color: var(--border);
+      color: var(--accent);
+    }
+    .nav-btn .count { font-size: 0.8rem; opacity: 0.7; margin-left: 4px; }
+    .content h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .content h2 .badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--card);
+      color: var(--muted);
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+    .scripts-grid { display: grid; gap: 12px; }
+    .script-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .script-card:hover {
+      background: var(--card-hover);
+      border-color: #3a3a48;
+    }
+    .script-text {
+      flex: 1;
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .copy-btn {
+      flex-shrink: 0;
+      padding: 8px 14px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .copy-btn.copied {
+      border-color: var(--success);
+      color: var(--success);
+      background: rgba(45, 212, 168, 0.08);
+    }
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--muted);
+    }
+    .empty-state p { margin-top: 8px; font-size: 0.95rem; }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1e1e28;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 200;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .toast.success { border-color: var(--success); }
+    .tip {
+      margin-top: 32px;
+      padding: 14px 18px;
+      background: rgba(255, 77, 109, 0.08);
+      border: 1px solid rgba(255, 77, 109, 0.2);
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .tip strong { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="logo">OF <span>Scripts</span></div>
+      <div class="search-wrap">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input type="text" id="search" placeholder="Caută mesaj..." autocomplete="off" />
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <nav id="nav"></nav>
+    <main class="content">
+      <h2 id="section-title">Toate <span class="badge" id="count-badge">0</span></h2>
+      <div class="scripts-grid" id="scripts-grid"></div>
+      <div class="empty-state" id="empty" style="display:none;">
+        <div style="font-size:2rem;">🔍</div>
+        <p>Niciun mesaj găsit.</p>
+      </div>
+      <div class="tip">
+        <strong>Tip:</strong> Fiecare categorie crește treptat în intensitate (de la soft → mai intens). Poți da copy la orice mesaj – toate stau singure și sună natural. Caută după cuvinte ca să găsești rapid ce ai nevoie.
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">Copiat!</div>
+
+  <script>
+    const DATA = {
+      "Teasing": [
+        "You’ve been on my mind more than you should… 😌",
+        "I keep catching myself smiling because of you 😊",
+        "Something about the way you write makes it hard to focus 😳",
+        "I shouldn’t be this distracted already… but here we are 💭",
+        "You’re quietly dangerous, you know that? 😏",
+        "I keep rereading your last message… it’s not helping 👀",
+        "You’re making it very hard to stay good right now 🥺",
+        "I bit my lip without even realizing it… your fault 🫦",
+        "My thoughts keep drifting somewhere they probably shouldn’t 🔥",
+        "You’re the reason I can’t sit still tonight 😮‍💨",
+        "I keep shifting in my seat and it’s because of you 🫣",
+        "Every time you reply I feel a little warmer 🌡️",
+        "You’re not even trying and you’re still getting to me 😩",
+        "I can feel myself getting restless just talking to you 💭",
+        "Stop being so distracting… I’m trying to behave 😌",
+        "You’re making my mind go places I can’t ignore anymore 🔥",
+        "I keep pressing my thighs together without thinking… 😣",
+        "You’re slowly turning me on and I don’t even mind 😏",
+        "I shouldn’t tell you this but… you’re getting under my skin 😳",
+        "My body is already reacting to you and we’ve barely started 🥵",
+        "You’re making me feel things I usually keep quiet about 🙊",
+        "I keep imagining what you’d do if you were here right now 💭",
+        "You’re not just talking… you’re making me ache a little 😩",
+        "I can feel the tension building and it’s all your fault 🔥",
+        "You’re turning a simple conversation into something much hotter 😈",
+        "I keep getting wetter the longer we talk… just so you know 💦",
+        "You’re making it hard to think about anything else 😵‍💫",
+        "I want you to keep going… I like where this is heading 😏",
+        "You’re making me restless in the best way possible 😮‍💨",
+        "I can feel myself getting more and more turned on by you 🔥",
+        "You’re doing something to me and I don’t want you to stop 🥺",
+        "Every message from you makes me a little more desperate 😩",
+        "I’m starting to need more than just words from you 💭",
+        "You’re making me so worked up I can barely sit still 🥵",
+        "I keep touching myself without meaning to… you’re dangerous 🫣",
+        "You’re turning me on so much it’s getting hard to hide 😳",
+        "I want you to know exactly what you’re doing to me right now 😈",
+        "You’re making me throb and we haven’t even gotten physical yet 💦",
+        "I’m getting so sensitive just from the way you talk to me 😣",
+        "You’re making me ache in places that need attention 🔥",
+        "I keep getting wetter and it’s completely your fault 💦",
+        "You’re pushing me further than I expected tonight 😩",
+        "I can feel how turned on I am and it’s only getting stronger 🥵",
+        "You’re making me want things I shouldn’t say out loud yet 🙊",
+        "I’m getting so restless I might have to do something about it 💭",
+        "You’re making my whole body react and I love it 😈",
+        "I can’t stop thinking about what you’d do to me if you were here 🔥",
+        "You’re making me so needy it’s starting to show 🥺",
+        "I want you to keep teasing me until I can’t take it anymore 😩",
+        "You’re turning me into a complete mess and I’m not even mad about it 🥵"
+      ],
+      "Blowjob": [
+        "I’d start slow… just soft kisses along the tip while I look up at you 😌",
+        "I’d take my time tasting you, lips barely wrapping around the head at first 🫦",
+        "I’d lick you slowly from base to tip, nice and gentle 👅",
+        "I’d swirl my tongue around the tip, keeping it soft and teasing 😌",
+        "I’d take just the head into my mouth and suck lightly, still looking up at you 👀",
+        "I’d move a little deeper, still slow, letting you feel how warm and wet my mouth is 💦",
+        "I’d bob my head gently, keeping the pace relaxed so you can enjoy every second 😮‍💨",
+        "I’d use my tongue more, pressing it against the underside while I take you a bit further 👅",
+        "I’d start to get a little hungrier, sucking a bit firmer but still nice and controlled 😏",
+        "I’d let saliva build up so everything stays wet and smooth while I work you 💦",
+        "I’d take you deeper, still at a steady pace, getting used to the size of you 😳",
+        "I’d hollow my cheeks a little, creating more suction while I keep the rhythm calm 🫦",
+        "I’d stroke what I can’t fit yet with my hand, matching the movement of my mouth ✋",
+        "I’d go a little faster now, still focused on making it feel really good for you 😌",
+        "I’d start taking you deeper with each movement, getting more into it 🔥",
+        "I’d let more spit run down so it stays messy and wet the way it should 💦",
+        "I’d look up at you while I take you further, wanting to see your reaction 👀",
+        "I’d pick up the pace, sucking harder now that I’m more comfortable 😩",
+        "I’d focus on the head more when I pull back, then slide down again deeper 🫦",
+        "I’d use both hand and mouth together, making sure you feel constant attention ✋👅",
+        "I’d start getting louder with the wet sounds, not holding back anymore 💦",
+        "I’d take you as deep as I can, holding there for a second before pulling back 😳",
+        "I’d go faster, sucking with more intention, really wanting to make you feel it 🔥",
+        "I’d let it get messier, spit everywhere, not caring how it looks 💦",
+        "I’d push myself to take more of you, eyes watering a little from the effort 😣",
+        "I’d keep the rhythm strong and steady, not slowing down even when it gets intense 😩",
+        "I’d focus on making it as wet and tight as possible around you 💦",
+        "I’d suck harder on the way up, then take you deep again on the way down 🫦",
+        "I’d use my tongue more aggressively now, working the sensitive spots 👅",
+        "I’d keep going even when my jaw starts to feel it… I don’t want to stop 😳",
+        "I’d make it really messy, spit dripping, still looking up at you 👀💦",
+        "I’d take you deep and hold, letting you feel the back of my throat 🥵",
+        "I’d pull back just enough to breathe then go right back down again 😮‍💨",
+        "I’d pick up speed, determined to make you lose control 🔥",
+        "I’d suck like I need it, no more teasing, just full focus on you 😩",
+        "I’d keep my lips tight and my tongue active the whole time 🫦👅",
+        "I’d go as deep as I can repeatedly, not giving you a chance to recover 😳",
+        "I’d make the wet sounds louder on purpose, wanting you to hear everything 💦",
+        "I’d stroke and suck at the same time, faster now, more desperate ✋🫦",
+        "I’d take you deep and stay there, swallowing around you 🥵",
+        "I’d keep the pressure strong, not letting up even for a second 🔥",
+        "I’d work you harder, mouth and hand moving together without pause 😩",
+        "I’d push myself further, taking more than I thought I could 😣",
+        "I’d suck with everything I have, wanting to feel you throb 💦",
+        "I’d keep going deep and fast, completely focused on making you finish 🔥",
+        "I’d make it as intense as I can, no holding back anymore 🥵",
+        "I’d take you all the way and stay there, eyes up, waiting for your reaction 👀",
+        "I’d keep the rhythm relentless until you can’t hold on any longer 😩",
+        "I’d suck harder and deeper, determined to make you lose it completely 🔥",
+        "I’d finish you off with everything I’ve got… deep, wet, and not stopping until you’re done 💦🥵"
+      ],
+      "Pussy": [
+        "I noticed I’m already a little wet just from talking to you… 😌",
+        "I keep feeling a soft throb between my legs when I read your messages 💭",
+        "I’m getting warmer down there and it’s completely your fault 🌡️",
+        "I pressed my thighs together without thinking… I’m starting to feel it 🫣",
+        "There’s a light ache building and I know it’s because of you 😣",
+        "I’m getting wetter the longer this goes on… I can feel it 💦",
+        "My clit is starting to tingle just from the way you’re talking to me 😳",
+        "I keep shifting because the sensation is getting harder to ignore 😩",
+        "I’m wet enough now that I can feel it when I move 💦",
+        "Every message from you makes the throb a little stronger 🔥",
+        "I’m starting to get really sensitive… even small movements feel like more 😣",
+        "I want to touch myself but I’m trying to hold back a little longer 🫣",
+        "My pussy is getting so warm and wet just thinking about you 🥵",
+        "I can feel how slick I’m becoming and it’s only getting worse 💦",
+        "I’m aching more now… it’s not just a little anymore 😩",
+        "I keep getting wetter and it’s making it hard to focus on anything else 😵‍💫",
+        "My clit is swollen and sensitive… I can feel every pulse 😣",
+        "I want your fingers on me so badly right now it’s ridiculous 🥺",
+        "I’m dripping enough that I can feel it on my thighs when I shift 💦",
+        "The ache is getting stronger… I need more than just words 🔥",
+        "I’m so wet it’s starting to feel uncomfortable in the best way 🥵",
+        "I keep clenching without meaning to… my body is already reacting hard 😩",
+        "I want to feel something inside me… the emptiness is getting intense 😣",
+        "My pussy is throbbing so much I can barely sit still 💦",
+        "I’m soaked… I can feel how ready I am every time I move 🥵",
+        "I need friction… I keep pressing my hand between my legs without thinking 🫣",
+        "I’m so sensitive that even the air feels like too much right now 😳",
+        "I want your tongue on me… I keep imagining how it would feel 👅",
+        "I’m dripping down my thighs and it’s all because of you 💦",
+        "The throb is constant now… I can’t ignore it anymore 🔥",
+        "I need to be touched properly… this teasing is driving me crazy 😩",
+        "My clit is so swollen it hurts in the best way possible 😣",
+        "I’m so wet I could take you easily right now… no resistance at all 🥵",
+        "I keep getting closer just from thinking about what you’d do to me 💭",
+        "I want your fingers deep… slow at first, then harder ✋",
+        "I’m aching to be filled… the emptiness is almost painful 😩",
+        "My pussy is pulsing so hard I can feel it in my stomach 🔥",
+        "I’m completely soaked and getting more desperate by the second 💦",
+        "I need you to make me feel it properly… words aren’t enough anymore 🥺",
+        "I’m so turned on I can barely form coherent thoughts 😵‍💫",
+        "I want to grind against something… anything… just to get relief 😩",
+        "My whole body is focused between my legs right now 🥵",
+        "I’m dripping and throbbing and it’s only getting more intense 💦🔥",
+        "I need to come so badly it’s starting to feel urgent 😣",
+        "I’m so wet and open for you it’s almost embarrassing 😳",
+        "I want you to ruin me slowly… make me feel every second of it 😈",
+        "My pussy is aching for you in a way I can’t ignore anymore 😩",
+        "I’m completely lost in how turned on I am right now 🥵",
+        "I need you inside me… or at least something that feels like you 💦",
+        "I’m so desperate and wet that I’d take anything you gave me right now 🔥🥵"
+      ],
+      "Ass": [
+        "I’ve been thinking about your hands on me… especially lower 😌",
+        "I keep imagining you grabbing me from behind, just firm enough 🤭",
+        "There’s something about the idea of you touching my ass that gets me 😏",
+        "I want to feel your hands squeeze me there… not too hard yet ✋",
+        "I’d push back into your hands if you were holding me like that 🫣",
+        "I keep thinking about you exploring me slowly from behind 💭",
+        "I want your palms on me, feeling how soft I am there 😌",
+        "I’d let you take your time… no rush, just your hands learning me 🫶",
+        "The idea of you spreading me open a little is already turning me on 😳",
+        "I want your fingers trailing lower, getting closer ✋",
+        "I’d arch for you if you started touching me like that 😮‍💨",
+        "I keep getting wetter thinking about your hands on my ass 💦",
+        "I want you to grab harder… leave a little mark if you want 🔥",
+        "I’d push back against you, letting you feel exactly how I react 😩",
+        "The thought of you between my cheeks is making me restless 🫣",
+        "I want your fingers to explore more… slowly at first ✋",
+        "I’d let you spread me and just look for a while if that’s what you wanted 👀",
+        "I’m getting more sensitive back there the more I think about it 😣",
+        "I want to feel your tongue eventually… but only when I’m ready 👅",
+        "I’d be so wet by the time you actually touched me properly 💦",
+        "I keep clenching just imagining your hands on me like that 😩",
+        "I want you to take control of how you touch me from behind 😈",
+        "I’d stay still for you at first… let you decide the pace 😌",
+        "The more I think about it the more I want your hands everywhere 🔥",
+        "I want you to play with me slowly until I’m begging for more 🥺",
+        "I’d get so turned on from just your hands that I’d start dripping 💦",
+        "I want to feel you press against me from behind while you explore 🥵",
+        "I’d push back harder the more comfortable I got with it 😩",
+        "The idea of you taking your time with my ass is really getting to me 💭",
+        "I want your fingers to go further when I’m ready for it ✋",
+        "I’d be moaning just from how you touched me back there 😣",
+        "I keep getting wetter thinking about you spreading me open 💦",
+        "I want you to make me feel owned in the best way… with your hands 😈",
+        "I’d let you do almost anything as long as you kept touching me like that 🫣",
+        "I’m starting to ache for more than just light touches now 😩",
+        "I want you deeper… fingers or tongue, I don’t even care which first 🔥",
+        "I’d be so responsive once you really started playing with me 🥵",
+        "The thought of you focused only on my ass is making me throb 💦",
+        "I want you to take your time until I’m completely worked up 😮‍💨",
+        "I’d grind back against your hand the second it felt good enough 😩",
+        "I’m getting desperate for you to actually do something about it 🥺",
+        "I want you to make me come just from how you touch me back there 🔥",
+        "I’d be shaking by the time you finished exploring me properly 😣",
+        "I want it intense… not rushed, but deep and focused 😈",
+        "I’d let you use me however you wanted once I was that turned on 🥵",
+        "The more I think about your hands the wetter I get 💦",
+        "I want you to ruin me slowly from behind until I can’t think straight 🔥",
+        "I’d be completely open for you by the time you were done with me 😩",
+        "I need you to take control of my ass the way I keep imagining 😈",
+        "I’m so ready for you to stop teasing and actually take what’s yours 🥵💦"
+      ],
+      "Cum": [
+        "I want to feel you get close… just from how I’m touching you 😌",
+        "I’d keep going until I could feel you throbbing harder in my hand ✋",
+        "I want to watch your face when you start getting close 👀",
+        "I’d slow down right when you were about to finish… just to tease 😏",
+        "I want to feel every pulse when you finally let go 💦",
+        "I’d keep the pressure steady so you could focus on finishing 😮‍💨",
+        "I want to know exactly when you’re about to lose control 🔥",
+        "I’d look up at you the whole time so I wouldn’t miss it 👀",
+        "I want to feel you throb right before you finish 😩",
+        "I’d make sure you came exactly where you wanted 😌",
+        "I want to taste it if that’s what you prefer… or feel it on me 👅",
+        "I’d keep going through it, not stopping until you were completely done 💦",
+        "I want to feel you empty everything you’ve been holding back 🔥",
+        "I’d stroke you through it so the pleasure lasted longer ✋",
+        "I want to see the mess you make when you finally let go 👀💦",
+        "I’d catch as much as I could if you came in my mouth 🫦",
+        "I want to feel it warm on my skin if that’s where you put it 🥵",
+        "I’d keep my lips around you while you finished so you felt everything 💦",
+        "I want to make sure you come hard… not just a little 🔥",
+        "I’d look at you the whole time, not looking away once 👀",
+        "I want to feel you twitch and pulse until there’s nothing left 😩",
+        "I’d stay right there with you until the last drop 😌",
+        "I want to be the reason you lose control completely 😈",
+        "I’d make it as intense as possible so you remembered it 🔥",
+        "I want to feel you throb deep when you finish inside me 💦",
+        "I’d clench around you to make it even better for you 😩",
+        "I want to watch it drip out of me after if that’s what you did 👀",
+        "I’d keep moving slowly while you came so it lasted longer 😮‍💨",
+        "I want to feel every single pulse against me 🔥",
+        "I’d hold still if you wanted to stay deep while you finished 🫣",
+        "I want to make you come so hard your legs shake a little 🥵",
+        "I’d keep the rhythm perfect until you couldn’t hold on anymore 💦",
+        "I want to be covered in it if that’s what you needed 😈",
+        "I’d let you finish wherever felt best in the moment 😌",
+        "I want to feel the heat of it on my tongue or my skin 👅💦",
+        "I’d stay focused on you until you were completely spent 👀",
+        "I want to make the moment you come the best part of all this 🔥",
+        "I’d keep going even after you started… riding it out with you 😩",
+        "I want to feel you lose it because of what I was doing 🥵",
+        "I’d make sure you came more than once if your body allowed it 💦",
+        "I want to see your face when the pleasure hits its peak 👀",
+        "I’d keep my mouth or hand right there so you felt constant contact 🫦✋",
+        "I want to take everything you give me without hesitation 😈",
+        "I’d stay close after, feeling the aftershocks with you 😌",
+        "I want to make you come so hard you need a minute to recover 🔥",
+        "I’d keep the intensity high until you had nothing left to give 💦",
+        "I want to be the last thing you feel when you finally finish 🥵",
+        "I’d make sure it was messy and perfect at the same time 😈",
+        "I want to feel you empty yourself completely because of me 🔥💦",
+        "I’d stay with you through every second of it until you were done 😩❤️"
+      ],
+      "Squirt": [
+        "I’m already so sensitive that small touches feel like more than they should 😌",
+        "I can feel myself getting wetter and more reactive the longer this goes 💦",
+        "There’s a building pressure that keeps getting stronger 😣",
+        "I keep getting closer just from how turned on I am right now 🔥",
+        "My body is starting to feel like it’s holding something back 🫣",
+        "I can feel the edge getting nearer even though we’re only talking 💭",
+        "I’m so worked up that I might actually lose control if this continues 😩",
+        "The sensation between my legs is getting harder to manage 💦",
+        "I keep clenching and it only makes the feeling stronger 😣",
+        "I’m starting to think I might squirt if you keep pushing me like this 😳",
+        "There’s a heat building that feels different from just being wet 🌡️",
+        "I can feel myself getting closer to the point where I can’t hold it 🥵",
+        "My legs are already starting to feel a little shaky 😩",
+        "I’m so sensitive that every pulse feels bigger than the last 🔥",
+        "I think I’m going to make a mess if this keeps going 💦",
+        "The pressure is getting intense… I can feel it building fast 😣",
+        "I’m getting to the point where I might not be able to stop it 😳",
+        "My body is reacting harder than usual… something feels different 🫣",
+        "I keep getting waves of pleasure that make me think I’m close to squirting 💦",
+        "I’m so turned on that the idea of letting go completely is exciting me 😈",
+        "I can feel myself getting wetter in a way that feels almost uncontrollable 🥵",
+        "The more I think about you the closer I get to losing it 🔥",
+        "I’m starting to drip in a way that feels like the beginning of more 💦",
+        "My whole lower body feels tight and ready at the same time 😩",
+        "I think if you kept talking like this I’d actually squirt 😳",
+        "There’s a deep throb that feels like it’s about to break free 🔥",
+        "I’m getting so close I can almost feel it happening already 😣",
+        "My legs keep tensing because the sensation is getting overwhelming 🥵",
+        "I want to let go… I want to feel what happens when I stop holding back 💦",
+        "I’m so worked up that squirting feels inevitable at this point 😩",
+        "The pressure keeps building and I’m not sure how much longer I can take it 🔥",
+        "I can feel myself getting ready to make a real mess 💦",
+        "Every little movement makes the feeling stronger and harder to control 😣",
+        "I’m right on the edge of something bigger than a normal orgasm 🥵",
+        "I want you to push me until I actually squirt… I need it 🥺",
+        "My body is shaking a little already just from how close I am 😩",
+        "I’m so wet and sensitive that I know it won’t take much more 💦",
+        "I can feel the release building… it’s going to be intense when it happens 🔥",
+        "I want to soak everything… I don’t want to hold it in anymore 😈",
+        "The more I focus on the feeling the closer I get to letting go 🥵",
+        "I’m going to squirt if this keeps going… I can already feel it 💦",
+        "My whole body is preparing for it… legs tense, breath short 😩",
+        "I need to feel that release… the kind that leaves me shaking and wet 🔥",
+        "I’m so close that just a few more words might push me over 😳",
+        "I want to come so hard that I squirt and can’t stop it 🥵",
+        "The pressure is almost painful in the best way… I need to let it out 😣",
+        "I’m going to make a mess and I don’t even care anymore 💦",
+        "I can feel it starting… that deep, unstoppable wave 🔥",
+        "I’m going to squirt hard… I can already tell it’s going to be a lot 😩💦",
+        "I need to let go completely… I want to soak the sheets because of you 🥵🔥💦"
+      ]
+    };
+
+    let currentCategory = "All";
+    let searchQuery = "";
+
+    const nav = document.getElementById("nav");
+    const grid = document.getElementById("scripts-grid");
+    const title = document.getElementById("section-title");
+    const empty = document.getElementById("empty");
+    const toast = document.getElementById("toast");
+    const searchInput = document.getElementById("search");
+
+    function buildNav() {
+      nav.innerHTML = "";
+      const allBtn = document.createElement("button");
+      allBtn.className = "nav-btn" + (currentCategory === "All" ? " active" : "");
+      allBtn.innerHTML = `Toate <span class="count">(${Object.values(DATA).flat().length})</span>`;
+      allBtn.onclick = () => setCategory("All");
+      nav.appendChild(allBtn);
+
+      Object.keys(DATA).forEach(cat => {
+        const btn = document.createElement("button");
+        btn.className = "nav-btn" + (currentCategory === cat ? " active" : "");
+        btn.innerHTML = `${cat} <span class="count">(${DATA[cat].length})</span>`;
+        btn.onclick = () => setCategory(cat);
+        nav.appendChild(btn);
+      });
+    }
+
+    function setCategory(cat) {
+      currentCategory = cat;
+      buildNav();
+      render();
+    }
+
+    function getFiltered() {
+      let items = [];
+      if (currentCategory === "All") {
+        Object.entries(DATA).forEach(([cat, msgs]) => {
+          msgs.forEach(m => items.push({ cat, text: m }));
+        });
+      } else {
+        DATA[currentCategory].forEach(m => items.push({ cat: currentCategory, text: m }));
+      }
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        items = items.filter(i => i.text.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q));
+      }
+      return items;
+    }
+
+    function render() {
+      const items = getFiltered();
+      grid.innerHTML = "";
+      empty.style.display = items.length ? "none" : "block";
+      const label = currentCategory === "All" ? "Toate" : currentCategory;
+      title.innerHTML = `${label} <span class="badge">${items.length}</span>`;
+      items.forEach(({ text }) => {
+        const card = document.createElement("div");
+        card.className = "script-card";
+        const textEl = document.createElement("div");
+        textEl.className = "script-text";
+        textEl.textContent = text;
+        const btn = document.createElement("button");
+        btn.className = "copy-btn";
+        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy`;
+        btn.onclick = () => copyText(text, btn);
+        card.appendChild(textEl);
+        card.appendChild(btn);
+        grid.appendChild(card);
+      });
+    }
+
+    function copyText(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        btn.classList.add("copied");
+        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copiat`;
+        showToast("Mesaj copiat!");
+        setTimeout(() => {
+          btn.classList.remove("copied");
+          btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy`;
+        }, 1800);
+      }).catch(() => {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        showToast("Mesaj copiat!");
+      });
+    }
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add("show", "success");
+      setTimeout(() => toast.classList.remove("show"), 2000);
+    }
+
+    searchInput.addEventListener("input", (e) => {
+      searchQuery = e.target.value.trim();
+      render();
+    });
+
+    buildNav();
+    render();
+  </script>
+</body>
+</html>
